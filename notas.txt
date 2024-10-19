@@ -1,0 +1,72 @@
+###########
+##Conceptos##
+
+modelo == representacion de nuestra en la base de datos
+atributos de una tabla == son las columnas de nuestra tabla
+
+###########
+
+
+#####Creacion de Modelo####
+
+from datetime import datetime
+
+from sqlalchemy.ext.declarative import declarative_base
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker 
+from sqlalchemy import Column, Integer, String, DateTime
+
+engine = create_engine('mysql://root:@localhost/101')
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = 'user' #nombre de la tabla 
+    id= Column(Integer(), primary_key=True)
+    username = Column(String(50), nullable=False, unique= True)
+    email = Column(String(50), nullable=False, unique= True)
+    created_at= Column(DataTime(), default=datetime.now())
+
+    def __str__(self):
+        return self.username
+
+Session = sessionmaker() ## un punte entre la conexion y entre y podemos modficaar nuestra base de datos 
+session = Session()
+
+if __name__ == '__main__':
+    Base.metadata.drop_all() ##eliminar datos de nuestra base de datos
+    Base.metadata.create_all(engine) ## crear todas nuestras tablas en la base de datos
+
+    user1= User(username='User1', email='user1@example.com')
+    user2= User(username='User2', email='user2@example.com')
+    user3= User(username='User3', email='user3@example.com')
+
+    session.add(user1)
+    session.add(user2)
+    session.add(user3)
+
+    session.commit()
+
+    # SELECT * FROM users;
+    # users = session.query(User).all()
+
+    # SELECT * FROM users WHERE id >= 2 and username = 'User3'
+    # Clase -> Instancias de dicha clase
+    # Argumentos -> Tuplas
+    users = session.query(User.id, User.username, User.email).filter(
+        User.id >= 2
+    )
+
+    users = session.query(User).filter(
+        User.id >= 2
+    )
+
+    users = session.query(User.id, User.username, User.email).filter(
+        User.id >= 2
+    ).filter(
+        User.username == 'User3'
+    )
+
+    for user un users:
+        print(user)
+
